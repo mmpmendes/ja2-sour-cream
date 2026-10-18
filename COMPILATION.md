@@ -138,6 +138,7 @@ You now have a zip file with the game, including the dll dependencies.
 ## Build for Android
 
 The Android project uses Gradle with CMake for the native code (see `android/app/build.gradle`).
+For a step-by-step debug build and testing on a physical device, see [Android build and device testing](docs/ANDROID_BUILD_AND_DEVICE_TEST.md).
 The supported ABIs are `armeabi-v7a`, `arm64-v8a`, `x86`, and `x86_64`.
 
 Install
