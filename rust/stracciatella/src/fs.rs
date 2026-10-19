@@ -52,19 +52,40 @@ pub fn remove_file<P: AsRef<Path>>(path: P) -> Result<(), io::Error> {
     std::fs::remove_file(path)
 }
 
+/// Copy across filesystems into the destination directory before replacing the destination.
+/// A failed copy must leave the previous destination untouched.
+fn copy_then_replace_with<F>(from: &Path, to: &Path, copy: F) -> Result<(), io::Error>
+where
+    F: FnOnce(&Path, &Path) -> Result<(), io::Error>,
+{
+    let parent = to
+        .parent()
+        .filter(|path| !path.as_os_str().is_empty())
+        .unwrap_or_else(|| Path::new("."));
+    let staged = NamedTempFile::new_in(parent)?;
+    copy(from, staged.path())?;
+    staged.as_file().sync_all()?;
+    staged.persist(to).map_err(|error| error.error)?;
+    remove_file(from)
+}
+
 /// An implementation of `std::fs::rename` that handles files on different file systems
 pub fn rename<P: AsRef<Path>>(from: P, to: P) -> Result<(), io::Error> {
     match std::fs::rename(&from, &to) {
         Ok(()) => Ok(()),
         #[cfg(target_family = "unix")]
         Err(e) if e.raw_os_error() == Some(libc::EXDEV) => {
-            std::fs::copy(&from, &to).and_then(|_| remove_file(&from))
+            copy_then_replace_with(from.as_ref(), to.as_ref(), |source, staged| {
+                std::fs::copy(source, staged).map(|_| ())
+            })
         }
         #[cfg(target_family = "windows")]
         Err(e)
             if e.raw_os_error() == Some(winapi::shared::winerror::ERROR_NOT_SAME_DEVICE as i32) =>
         {
-            std::fs::copy(&from, &to).and_then(|_| remove_file(&from))
+            copy_then_replace_with(from.as_ref(), to.as_ref(), |source, staged| {
+                std::fs::copy(source, staged).map(|_| ())
+            })
         }
         Err(e) => Err(e),
     }
@@ -247,4 +268,121 @@ pub fn free_space(path: &Path) -> io::Result<u64> {
 /// Note that the filename should not contain the extension
 pub fn clean_basename<T: AsRef<Path>>(basename: T) -> PathBuf {
     PathBuf::from(slug::slugify(basename.as_ref().to_string_lossy()))
+}
+
+#[cfg(test)]
+mod rename_tests {
+    use super::*;
+
+    #[test]
+    fn failed_cross_filesystem_copy_preserves_previous_file() {
+        let dir = tempfile::tempdir().unwrap();
+        let source = dir.path().join("source.sav");
+        let destination = dir.path().join("slot.sav");
+        std::fs::write(&source, b"replacement").unwrap();
+        std::fs::write(&destination, b"previous save").unwrap();
+
+        let result = copy_then_replace_with(&source, &destination, |_, staged| {
+            std::fs::write(staged, b"incomplete").unwrap();
+            Err(io::Error::other("simulated copy failure"))
+        });
+
+        assert!(result.is_err());
+        assert_eq!(std::fs::read(&destination).unwrap(), b"previous save");
+        assert_eq!(std::fs::read(&source).unwrap(), b"replacement");
+        assert_eq!(std::fs::read_dir(dir.path()).unwrap().count(), 2);
+    }
+
+    #[test]
+    fn successful_cross_filesystem_copy_replaces_previous_file() {
+        let dir = tempfile::tempdir().unwrap();
+        let source = dir.path().join("source.sav");
+        let destination = dir.path().join("slot.sav");
+        std::fs::write(&source, b"replacement").unwrap();
+        std::fs::write(&destination, b"previous save").unwrap();
+
+        copy_then_replace_with(&source, &destination, |source, staged| {
+            std::fs::copy(source, staged).map(|_| ())
+        })
+        .unwrap();
+
+        assert_eq!(std::fs::read(&destination).unwrap(), b"replacement");
+        assert!(!source.exists());
+        assert_eq!(std::fs::read_dir(dir.path()).unwrap().count(), 1);
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn rename_across_filesystems_replaces_previous_file() {
+        use std::os::unix::fs::MetadataExt;
+
+        let source_dir = tempfile::tempdir_in("/dev/shm").unwrap();
+        let destination_dir = tempfile::tempdir().unwrap();
+        if std::fs::metadata(source_dir.path()).unwrap().dev()
+            == std::fs::metadata(destination_dir.path()).unwrap().dev()
+        {
+            return;
+        }
+
+        let source = source_dir.path().join("source.sav");
+        let destination = destination_dir.path().join("slot.sav");
+        std::fs::write(&source, b"replacement").unwrap();
+        std::fs::write(&destination, b"previous save").unwrap();
+
+        rename(&source, &destination).unwrap();
+
+        assert_eq!(std::fs::read(&destination).unwrap(), b"replacement");
+        assert!(!source.exists());
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn failed_cross_filesystem_rename_preserves_previous_file() {
+        use std::os::unix::fs::MetadataExt;
+
+        if let (Ok(source), Ok(destination)) = (
+            std::env::var("STRACCIATELLA_RENAME_TEST_SOURCE"),
+            std::env::var("STRACCIATELLA_RENAME_TEST_DESTINATION"),
+        ) {
+            let limit = libc::rlimit {
+                rlim_cur: 1024,
+                rlim_max: 1024,
+            };
+            assert_eq!(unsafe { libc::setrlimit(libc::RLIMIT_FSIZE, &limit) }, 0);
+            unsafe { libc::signal(libc::SIGXFSZ, libc::SIG_IGN) };
+            assert!(rename(source, destination).is_err());
+            return;
+        }
+
+        let source_dir = tempfile::tempdir_in("/dev/shm").unwrap();
+        let destination_dir = tempfile::tempdir().unwrap();
+        if std::fs::metadata(source_dir.path()).unwrap().dev()
+            == std::fs::metadata(destination_dir.path()).unwrap().dev()
+        {
+            return;
+        }
+
+        let source = source_dir.path().join("source.sav");
+        let destination = destination_dir.path().join("slot.sav");
+        std::fs::write(&source, vec![b'X'; 4096]).unwrap();
+        std::fs::write(&destination, b"previous save").unwrap();
+
+        let output = std::process::Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "fs::rename_tests::failed_cross_filesystem_rename_preserves_previous_file",
+            ])
+            .env("STRACCIATELLA_RENAME_TEST_SOURCE", &source)
+            .env("STRACCIATELLA_RENAME_TEST_DESTINATION", &destination)
+            .output()
+            .unwrap();
+
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert_eq!(std::fs::read(&destination).unwrap(), b"previous save");
+        assert!(source.exists());
+    }
 }

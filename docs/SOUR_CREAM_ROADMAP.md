@@ -20,7 +20,7 @@ Estados permitidos neste documento: `por iniciar`, `em investigação`, `em impl
 
 | Ordem | ID | Prioridade | Esforço | Estado | Dependências |
 | --- | --- | --- | --- | --- | --- |
-| 1 | SC-01 Saves e recuperação | P0 | L | por iniciar | — |
+| 1 | SC-01 Saves e recuperação | P0 | L | em investigação | — |
 | 2 | SC-02 Primeiro arranque e dados | P0 | M | por iniciar | — |
 | 3 | SC-03 Bloqueios de campanha | P0 | M | por iniciar | SC-01.1 para guardar reproduções |
 | 4 | SC-10 Experiência móvel, toque e zoom | P1 | L | por iniciar | SC-04.1 para medir legibilidade; SC-05.1 para ações táticas |
@@ -32,6 +32,8 @@ Estados permitidos neste documento: `por iniciar`, `em investigação`, `em impl
 | 10 | SC-09 Identidade Sour Cream | P2 | S/M | por iniciar | decisão sobre nomes públicos e compatibilidade de caminhos |
 
 ## SC-01 — Saves e recuperação
+
+**Investigação iniciada em 19-10-2026 (SC-01.1):** [matriz e evidência](SC-01-SAVE-MATRIX.md). Os testes de cabeçalhos/estados de save passaram (20 testes). O percurso Rust de `EXDEV` copiava diretamente sobre o destino; uma cópia interrompida truncou o ficheiro anterior num ensaio isolado. SC-01.2 passa a usar um provisório no diretório de destino, sujeito a validação no jogo. Ainda não houve gravação/carga de campanha por falta dos dados originais.
 
 **Resultado esperado:** uma falha ao gravar não destrói o último save válido; um save aceite pelo jogo volta a carregar com o estado esperado. Começar em `src/game/SaveLoadGame.cc`, `src/game/SaveLoadScreen.cc`, `src/game/SaveLoadGameStates.cc` e `src/externalized/DefaultContentManager.cc`.
 
