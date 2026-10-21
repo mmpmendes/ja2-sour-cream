@@ -334,7 +334,7 @@ int main(int argc, char* argv[])
 			return EXIT_SUCCESS;
 		}
 
-		auto shouldStartInFullScreen = EngineOptions_shouldStartInFullscreen(params.get());
+		//auto shouldStartInFullScreen = EngineOptions_shouldStartInFullscreen(params.get());
 
 		if (EngineOptions_shouldStartWithoutSound(params.get())) {
 			SoundEnableSound(FALSE);
