@@ -6,9 +6,10 @@ Este repositório é um fork de JA2 Stracciatella. O nome pretendido para o fork
 
 1. Lê [docs/SOUR_CREAM_ROADMAP.md](docs/SOUR_CREAM_ROADMAP.md). É o plano de produto, ordenado por impacto. Escolhe um identificador `SC-xx` e limita a alteração a um incremento verificável desse item.
 2. Confirma o comportamento atual no código e, para bugs, reproduz o problema antes de alterar a lógica. Uma nota `TODO`, um relato externo ou uma hipótese do plano não são prova de um defeito neste fork.
-3. Lê [COMPILATION.md](COMPILATION.md) e as convenções de [CONTRIBUTING.md](CONTRIBUTING.md). O projeto combina C++/CMake e Rust/Cargo; `ja2-launcher` é opcional.
-4. Preserva dados de campanha, compatibilidade de saves e suporte aos dados originais do JA2. Alterações a formatos, localização ou prioridades do VFS exigem testes de compatibilidade.
-5. Em alterações de interface ou input, verifica rato/teclado e toque. Cada comando necessário para completar uma campanha deve continuar acessível sem rato ou teclado num dispositivo móvel. Gestos devem ter alternativa visível para quem não os consegue executar; zoom e escala visual não podem alterar regras, posição de objetos ou o resultado das ações.
+3. Regista informação relevante descoberta durante os testes numa frase num documento adequado ao assunto.
+4. Lê [COMPILATION.md](COMPILATION.md) e as convenções de [CONTRIBUTING.md](CONTRIBUTING.md). O projeto combina C++/CMake e Rust/Cargo; `ja2-launcher` é opcional.
+5. Preserva dados de campanha, compatibilidade de saves e suporte aos dados originais do JA2. Alterações a formatos, localização ou prioridades do VFS exigem testes de compatibilidade.
+6. Em alterações de interface ou input, verifica rato/teclado e toque. Cada comando necessário para completar uma campanha deve continuar acessível sem rato ou teclado num dispositivo móvel. Gestos devem ter alternativa visível para quem não os consegue executar; zoom e escala visual não podem alterar regras, posição de objetos ou o resultado das ações.
 
 ## Mapa rápido
 
@@ -25,6 +26,8 @@ Este repositório é um fork de JA2 Stracciatella. O nome pretendido para o fork
 Se o daemon ADB não conseguir iniciar dentro da sandbox (por exemplo, erro `Operation not permitted` ao abrir o socket local), executa os comandos ADB fora da sandbox. Não concluas que o dispositivo ou AVD está inacessível antes de tentar nesse contexto. Regista o dispositivo/AVD, Android/API, orientação, resolução e densidade usados na reprodução.
 
 Não encerres o AVD quando terminares de o usar; deixa-o ligado para a próxima sessão, salvo pedido explícito em contrário.
+
+Não necessitas de repor os dados que alteras durante os testes a não ser que seja explicitamente requisitado ou necessário para cumprir um teste.
 
 Os dados originais do JA2 estão disponíveis em `JA2_ORIGINAL_GAME_DIR`. Usa sempre esta variável para consultar ou copiar os ficheiros originais para um dispositivo ou AVD. Não registes o valor privado do caminho neste ficheiro nem copies dados proprietários para o repositório.
 
