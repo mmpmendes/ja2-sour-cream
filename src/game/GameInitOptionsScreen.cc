@@ -150,14 +150,26 @@ static BUTTON_PICS* giGIOCancelBtnImage;
 //checkbox to toggle the Diff level
 static GUIButtonRef guiDifficultySettingsToggles[NUM_DIF_LEVELS];
 static void BtnDifficultyTogglesCallback(GUI_BUTTON *btn, UINT32 reason);
+#ifdef __ANDROID__
+static GUIButtonRef guiDifficultySettingsLabels[NUM_DIF_LEVELS];
+static void BtnDifficultyLabelsCallback(GUI_BUTTON *btn, UINT32 reason);
+#endif
 
 //checkbox to toggle Game style
 static GUIButtonRef guiGameStyleToggles[NUM_GAME_STYLES];
 static void BtnGameStyleTogglesCallback(GUI_BUTTON *btn,UINT32 reason);
+#ifdef __ANDROID__
+static GUIButtonRef guiGameStyleLabels[NUM_GAME_STYLES];
+static void BtnGameStyleLabelsCallback(GUI_BUTTON *btn, UINT32 reason);
+#endif
 
 //checkbox to toggle Gun options
 static GUIButtonRef guiGunOptionToggles[NUM_GUN_OPTIONS];
 static void BtnGunOptionsTogglesCallback(GUI_BUTTON *btn, UINT32 reason);
+#ifdef __ANDROID__
+static GUIButtonRef guiGunOptionLabels[NUM_GUN_OPTIONS];
+static void BtnGunOptionLabelsCallback(GUI_BUTTON *btn, UINT32 reason);
+#endif
 
 #if 0// JA2Gold: no more timed turns setting
 //checkbox to toggle Timed turn option on or off
@@ -168,6 +180,10 @@ static void BtnTimedTurnsTogglesCallback(GUI_BUTTON *btn, UINT32 reason);
 //checkbox to toggle Save style
 static GUIButtonRef guiGameSaveToggles[NUM_SAVE_OPTIONS];
 static void BtnGameSaveTogglesCallback(GUI_BUTTON *btn, UINT32 reason);
+#ifdef __ANDROID__
+static GUIButtonRef guiGameSaveLabels[NUM_SAVE_OPTIONS];
+static void BtnGameSaveLabelsCallback(GUI_BUTTON *btn, UINT32 reason);
+#endif
 
 
 static void EnterGIOScreen();
@@ -256,6 +272,18 @@ static void MakeCheckBoxes(GUIButtonRef* const btns, size_t const n, INT16 const
 	btns[def]->uiFlags |= BUTTON_CLICKED_ON;
 }
 
+#ifdef __ANDROID__
+static void MakeLabelHotSpots(GUIButtonRef* const labels, size_t const n, INT16 const x, INT16 y, GUI_CALLBACK const click)
+{
+	for (size_t i = 0; i != n; y += GIO_GAP_BN_SETTINGS, ++i)
+	{
+		GUIButtonRef const label = CreateHotSpot(x, y, GIO_OFFSET_TO_TOGGLE_BOX - GIO_OFFSET_TO_TEXT, 29, MSYS_PRIORITY_HIGH + 10, click);
+		labels[i] = label;
+		label->SetUserData(i);
+	}
+}
+#endif
+
 
 static void EnterGIOScreen()
 {
@@ -277,6 +305,9 @@ static void EnterGIOScreen()
 		INT16 const y = GIO_DIF_SETTINGS_Y - GIO_OFFSET_TO_TOGGLE_BOX_Y;
 		size_t def = gGameOptions.ubDifficultyLevel - 1;
 		MakeCheckBoxes(guiDifficultySettingsToggles, lengthof(guiDifficultySettingsToggles), x, y, BtnDifficultyTogglesCallback, def);
+#ifdef __ANDROID__
+		MakeLabelHotSpots(guiDifficultySettingsLabels, lengthof(guiDifficultySettingsLabels), GIO_DIF_SETTINGS_X + GIO_OFFSET_TO_TEXT, y, BtnDifficultyLabelsCallback);
+#endif
 	}
 
 	{ // Check box to toggle game settings (realistic, sci fi)
@@ -284,6 +315,9 @@ static void EnterGIOScreen()
 		INT16  const y   = GIO_GAME_SETTINGS_Y - GIO_OFFSET_TO_TOGGLE_BOX_Y;
 		size_t const def = gGameOptions.fSciFi ? GIO_SCI_FI : GIO_REALISTIC;
 		MakeCheckBoxes(guiGameStyleToggles, lengthof(guiGameStyleToggles), x, y, BtnGameStyleTogglesCallback, def);
+#ifdef __ANDROID__
+		MakeLabelHotSpots(guiGameStyleLabels, lengthof(guiGameStyleLabels), GIO_GAME_SETTINGS_X + GIO_OFFSET_TO_TEXT, y, BtnGameStyleLabelsCallback);
+#endif
 	}
 
 	{ // JA2Gold: iron man buttons
@@ -291,6 +325,9 @@ static void EnterGIOScreen()
 		INT16  const y   = GIO_IRON_MAN_SETTING_Y - GIO_OFFSET_TO_TOGGLE_BOX_Y;
 		size_t const def = gGameOptions.ubGameSaveMode ? gGameOptions.ubGameSaveMode : GIO_CAN_SAVE;
 		MakeCheckBoxes(guiGameSaveToggles, lengthof(guiGameSaveToggles), x, y, BtnGameSaveTogglesCallback, def);
+#ifdef __ANDROID__
+		MakeLabelHotSpots(guiGameSaveLabels, lengthof(guiGameSaveLabels), GIO_IRON_MAN_SETTING_X + GIO_OFFSET_TO_TEXT, y, BtnGameSaveLabelsCallback);
+#endif
 	}
 
 	{ // Check box to toggle Gun options
@@ -298,6 +335,9 @@ static void EnterGIOScreen()
 		INT16  const y   = GIO_GUN_SETTINGS_Y - GIO_OFFSET_TO_TOGGLE_BOX_Y;
 		size_t const def = gGameOptions.fGunNut ? GIO_GUN_NUT : GIO_REDUCED_GUNS;
 		MakeCheckBoxes(guiGunOptionToggles, lengthof(guiGunOptionToggles), x, y, BtnGunOptionsTogglesCallback, def);
+#ifdef __ANDROID__
+		MakeLabelHotSpots(guiGunOptionLabels, lengthof(guiGunOptionLabels), GIO_GUN_SETTINGS_X + GIO_OFFSET_TO_TEXT, y, BtnGunOptionLabelsCallback);
+#endif
 	}
 
 #if 0 // JA2 Gold: no more timed turns
@@ -337,12 +377,21 @@ static void ExitGIOScreen()
 
 	// Check box to toggle difficulty settings
 	FOR_EACH(GUIButtonRef, i, guiDifficultySettingsToggles) RemoveButton(*i);
+#ifdef __ANDROID__
+	FOR_EACH(GUIButtonRef, i, guiDifficultySettingsLabels) RemoveButton(*i);
+#endif
 
 	// Check box to toggle game settings (realistic, sci fi)
 	FOR_EACH(GUIButtonRef, i, guiGameStyleToggles) RemoveButton(*i);
+#ifdef __ANDROID__
+	FOR_EACH(GUIButtonRef, i, guiGameStyleLabels) RemoveButton(*i);
+#endif
 
 	// Check box to toggle gun options
 	FOR_EACH(GUIButtonRef, i, guiGunOptionToggles) RemoveButton(*i);
+#ifdef __ANDROID__
+	FOR_EACH(GUIButtonRef, i, guiGunOptionLabels) RemoveButton(*i);
+#endif
 
 #if 0 // JA2Gold: no more timed turns setting
 	// Remove the timed turns toggle.
@@ -351,6 +400,9 @@ static void ExitGIOScreen()
 
 	// JA2Gold: Remove iron man buttons.
 	FOR_EACH(GUIButtonRef, i, guiGameSaveToggles) RemoveButton(*i);
+#ifdef __ANDROID__
+	FOR_EACH(GUIButtonRef, i, guiGameSaveLabels) RemoveButton(*i);
+#endif
 
 	// If we are starting the game stop playing the music.
 	if (gubGameOptionScreenHandler == GIO_EXIT) SetMusicMode(MUSIC_NONE);
@@ -559,6 +611,32 @@ static void BtnGunOptionsTogglesCallback(GUI_BUTTON *btn, UINT32 reason)
 		SelectCheckbox(guiGunOptionToggles, *btn);
 	}
 }
+
+#ifdef __ANDROID__
+static void BtnDifficultyLabelsCallback(GUI_BUTTON *btn, UINT32 reason)
+{
+	if (reason & MSYS_CALLBACK_REASON_POINTER_UP)
+		SelectCheckbox(guiDifficultySettingsToggles, *guiDifficultySettingsToggles[btn->GetUserData()]);
+}
+
+static void BtnGameStyleLabelsCallback(GUI_BUTTON *btn, UINT32 reason)
+{
+	if (reason & MSYS_CALLBACK_REASON_POINTER_UP)
+		SelectCheckbox(guiGameStyleToggles, *guiGameStyleToggles[btn->GetUserData()]);
+}
+
+static void BtnGunOptionLabelsCallback(GUI_BUTTON *btn, UINT32 reason)
+{
+	if (reason & MSYS_CALLBACK_REASON_POINTER_UP)
+		SelectCheckbox(guiGunOptionToggles, *guiGunOptionToggles[btn->GetUserData()]);
+}
+
+static void BtnGameSaveLabelsCallback(GUI_BUTTON *btn, UINT32 reason)
+{
+	if (reason & MSYS_CALLBACK_REASON_POINTER_UP)
+		SelectCheckbox(guiGameSaveToggles, *guiGameSaveToggles[btn->GetUserData()]);
+}
+#endif
 
 
 #if 0 // JA2Gold: no more timed turns setting
