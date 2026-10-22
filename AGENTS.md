@@ -24,6 +24,10 @@ Este repositório é um fork de JA2 Stracciatella. O nome pretendido para o fork
 
 Se o daemon ADB não conseguir iniciar dentro da sandbox (por exemplo, erro `Operation not permitted` ao abrir o socket local), executa os comandos ADB fora da sandbox. Não concluas que o dispositivo ou AVD está inacessível antes de tentar nesse contexto. Regista o dispositivo/AVD, Android/API, orientação, resolução e densidade usados na reprodução.
 
+Não encerres o AVD quando terminares de o usar; deixa-o ligado para a próxima sessão, salvo pedido explícito em contrário.
+
+Os dados originais do JA2 estão disponíveis em `JA2_ORIGINAL_GAME_DIR`. Usa sempre esta variável para consultar ou copiar os ficheiros originais para um dispositivo ou AVD. Não registes o valor privado do caminho neste ficheiro nem copies dados proprietários para o repositório.
+
 ## Ao concluir uma tarefa
 
 Regista no resumo da alteração: `SC-xx`, cenário reproduzido ou requisito observado, ficheiros alterados, verificações executadas, resultado e riscos que ficaram. Se não houver dados originais do JA2 disponíveis para teste manual, diz explicitamente quais cenários ficaram por verificar. Atualiza o estado e a evidência no roadmap apenas depois de a alteração estar concluída.

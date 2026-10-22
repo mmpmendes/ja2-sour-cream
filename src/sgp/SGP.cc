@@ -372,6 +372,10 @@ int main(int argc, char* argv[])
 
 		////////////////////////////////////////////////////////////
 
+	#ifdef __ANDROID__
+		// The launcher supports portrait, but the game window must start in landscape.
+		SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft");
+	#endif
 		SDL_Init(SDL_INIT_VIDEO);
 
 		// restore output to the console (on windows when built with MINGW)
