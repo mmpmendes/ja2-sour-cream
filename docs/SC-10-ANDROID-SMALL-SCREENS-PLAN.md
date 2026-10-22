@@ -1,6 +1,6 @@
 # SC-10 — Plano faseado de acessibilidade Android em ecrãs pequenos
 
-> Plano de investigação e implementação, 22-10-2026. Nenhuma melhoria de UI descrita aqui está implementada ou validada em dispositivo por este documento. A ordem e os critérios abaixo são propostas verificáveis; o resultado dos ensaios decide a solução concreta. Este plano detalha SC-10 do [roadmap](SOUR_CREAM_ROADMAP.md) e usa SC-04 apenas para a escala visual comum.
+> Plano de investigação e implementação, 22-10-2026. As melhorias de F001 estão registadas na secção de resultados abaixo; as restantes fases continuam propostas verificáveis. Este plano detalha SC-10 do [roadmap](SOUR_CREAM_ROADMAP.md) e usa SC-04 apenas para a escala visual comum.
 
 ## Contexto guardado para as próximas fases
 
@@ -75,6 +75,12 @@ Cada linha é uma **fase independente** de SC-10: observar no Pixel 8 e no emula
 | F005 | Introdução `INTRO_SCREEN` | Reproduzir/saltar e entrar no título só por toque (`Intro.cc`). |
 | F006 | **Main Title** `MAINMENU_SCREEN` | Novo jogo, continuar/carregar, opções e sair; confirmar alvos/voltar (`MainMenuScreen.cc`). |
 | F007 | Novo jogo `GAME_INIT_OPTIONS_SCREEN` | Dificuldade e opções iniciais legíveis e selecionáveis (`GameInitOptionsScreen.cc`). |
+
+**SC-10/F001 — linha de base e alteração, 22-10-2026:** commit base `ff066c9de2d38b8a5614bf4d59b13f6daf415b79`; `compileSdk 37`, `targetSdk 26`, NDK `29.0.14206865`; wrapper Gradle 9.8.2. Foi reproduzida no Pixel 8 a sobreposição do botão Choose da pasta de saves com o FAB de iniciar jogo ao chegar ao fim da página Data em horizontal. Recusar permissões também deixava apenas um Toast transitório sem ação; a validação existente rejeitou corretamente `/storage/emulated/0/Download` (não contém `Data`) e permitiu cancelar. A pasta original já presente no telefone em `Download/Jagged Alliance 2` foi selecionada e aceite; o caminho persistiu ao regressar ao launcher. Nenhum ficheiro de jogo foi copiado para o repositório.
+
+**Alterações F001:** o ScrollView da página Data reserva espaço inferior para o FAB; a recusa agora mostra diálogo persistente com Cancel e Open settings. O guia de build foi corrigido após inspeção de `android/app/build.gradle` e do wrapper. Build atual `RUSTUP_TOOLCHAIN=1.85.1 ./gradlew :app:assembleDebug` passou; APK instalado no Pixel e AVD. Pixel 8, Android 17/API 37, 1080×2400 físico, 420 dpi, app 2400×1080 em rotação horizontal: depois de iniciar pelo FAB, apareceu o menu principal do JA2 e a atividade do jogo permaneceu horizontal. A página Data também foi verificada em vertical, conforme requisito do utilizador. Em AVD Android 37, foram aplicados overrides 720×1600@320 dpi (telemóvel pequeno) e 1600×2560@320 dpi (tablet); controlos continuaram visíveis, roláveis e separados do FAB. No AVD verificaram-se seleção de pasta de saves, recusa de permissão, abertura de App settings e Cancel. Capturas locais em `/tmp/f001-scroll.png`, `/tmp/f001-postfix.png`, `/tmp/f001-small.png`, `/tmp/f001-tablet.png`, `/tmp/perm-emulator.png` e `/tmp/f001-final.png`; não versionadas.
+
+**Resultado/limites:** os cenários reproduzidos e a validação de orientação passaram após a correção; cancelamento do seletor e retorno ao launcher foram verificados. A build desktop e o percurso equivalente com rato/teclado não foram repetidos porque nenhuma lógica ou input do jogo foi alterado. A campanha, saves, VFS e formatos não foram modificados. F001 pode ser fechada para a página Data; ficam sem cobertura o tablet físico e as versões de Android fora dos dispositivos usados. A instalação original é privada e não foi incluída no repositório.
 
 ### Computador: moldura e **uma fase por página**
 

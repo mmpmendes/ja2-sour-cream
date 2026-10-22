@@ -1,13 +1,15 @@
 package io.github.ja2stracciatella.ui.main
 
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -173,24 +175,31 @@ class DataTabFragment : Fragment() {
             if (grantResults.all { r -> r == PackageManager.PERMISSION_GRANTED }) {
                 showGameDirChooser()
             } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Cannot select game directory without proper permissions",
-                    Toast.LENGTH_SHORT
-                ).show()
+                showStoragePermissionDeniedDialog()
             }
         }
         if (requestCode == requestPermissionsCodeSaveGameDir) {
             if (grantResults.all { r -> r == PackageManager.PERMISSION_GRANTED }) {
                 showSaveGameDirChooser()
             } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Cannot select save game directory without proper permissions",
-                    Toast.LENGTH_SHORT
-                ).show()
+                showStoragePermissionDeniedDialog()
             }
         }
+    }
+
+    private fun showStoragePermissionDeniedDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle(R.string.storage_permission_denied_title)
+            .setMessage(R.string.storage_permission_denied_message)
+            .setPositiveButton(R.string.open_app_settings) { _, _ ->
+                val intent = Intent(
+                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.parse("package:${requireContext().packageName}")
+                )
+                startActivity(intent)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     companion object {
