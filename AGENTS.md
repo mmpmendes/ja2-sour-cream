@@ -25,6 +25,8 @@ Este repositório é um fork de JA2 Stracciatella. O nome pretendido para o fork
 
 Se o daemon ADB não conseguir iniciar dentro da sandbox (por exemplo, erro `Operation not permitted` ao abrir o socket local), executa os comandos ADB fora da sandbox. Não concluas que o dispositivo ou AVD está inacessível antes de tentar nesse contexto. Regista o dispositivo/AVD, Android/API, orientação, resolução e densidade usados na reprodução.
 
+Usa sempre o AVD em modo visível, nunca em modo headless.
+
 Não encerres o AVD quando terminares de o usar; deixa-o ligado para a próxima sessão, salvo pedido explícito em contrário.
 
 Não necessitas de repor os dados que alteras durante os testes a não ser que seja explicitamente requisitado ou necessário para cumprir um teste.
