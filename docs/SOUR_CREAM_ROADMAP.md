@@ -20,10 +20,10 @@ Estados permitidos neste documento: `por iniciar`, `em investigação`, `em impl
 
 | Ordem | ID | Prioridade | Esforço | Estado | Dependências |
 | --- | --- | --- | --- | --- | --- |
-| 1 | SC-01 Saves e recuperação | P0 | L | por iniciar | — |
+| 1 | SC-01 Saves e recuperação | P0 | L | em investigação | — |
 | 2 | SC-02 Primeiro arranque e dados | P0 | M | por iniciar | — |
 | 3 | SC-03 Bloqueios de campanha | P0 | M | por iniciar | SC-01.1 para guardar reproduções |
-| 4 | SC-10 Experiência móvel, toque e zoom | P1 | L | por iniciar | SC-04.1 para medir legibilidade; SC-05.1 para ações táticas |
+| 4 | SC-10 Experiência móvel, toque e zoom | P1 | L | em investigação | SC-04.1 para medir legibilidade; SC-05.1 para ações táticas |
 | 5 | SC-04 Escala e ecrãs largos | P1 | L | por iniciar | — |
 | 6 | SC-05 Clareza das ações táticas | P1 | M/L | por iniciar | — |
 | 7 | SC-06 IA e ritmo dos turnos | P1 | L | por iniciar | SC-05.1 para distinguir regras de apresentação |
@@ -32,6 +32,8 @@ Estados permitidos neste documento: `por iniciar`, `em investigação`, `em impl
 | 10 | SC-09 Identidade Sour Cream | P2 | S/M | por iniciar | decisão sobre nomes públicos e compatibilidade de caminhos |
 
 ## SC-01 — Saves e recuperação
+
+**Investigação iniciada em 19-10-2026 (SC-01.1):** [matriz e evidência](SC-01-SAVE-MATRIX.md). Os testes de cabeçalhos/estados de save passaram (20 testes). O percurso Rust de `EXDEV` copiava diretamente sobre o destino; uma cópia interrompida truncou o ficheiro anterior num ensaio isolado. SC-01.2 passa a usar um provisório no diretório de destino, sujeito a validação no jogo. Ainda não houve gravação/carga de campanha por falta dos dados originais.
 
 **Resultado esperado:** uma falha ao gravar não destrói o último save válido; um save aceite pelo jogo volta a carregar com o estado esperado. Começar em `src/game/SaveLoadGame.cc`, `src/game/SaveLoadScreen.cc`, `src/game/SaveLoadGameStates.cc` e `src/externalized/DefaultContentManager.cc`.
 
@@ -78,6 +80,10 @@ Estados permitidos neste documento: `por iniciar`, `em investigação`, `em impl
 5. **SC-10.5 — Preferências acessíveis.** Permitir ajustar sensibilidade de gestos, duração do toque prolongado e escala/zoom onde a implementação o justificar. Guardar preferências sem modificar saves ou regras. Documentar gestos no jogo e fornecer alternativa visível às ações críticas.
 6. **SC-10.6 — Validação em dispositivos.** Executar percursos completos em telemóvel e tablet: iniciar campanha, contratar, deslocar esquadrão, combater, gerir inventário, guardar/carregar, suspender/retomar e mudar orientação quando suportado. Medir erros de toque, legibilidade, tempo para concluir ações e desempenho do zoom; comparar com a mesma campanha em desktop. Separar falhas do launcher Android, SDL/input, UI do jogo e renderização.
 7. **SC-10.7 — Alcance de plataformas móveis.** Verificar instalação, permissões, armazenamento, ciclo de vida e desempenho nas versões Android que se pretende suportar. Investigar requisitos de build, distribuição e acesso aos dados originais em iOS antes de prometer uma versão; criar uma tarefa de portabilidade própria se a viabilidade e os testes em dispositivo o justificarem. Reutilizar o modelo de input/zoom comum sempre que possível.
+
+**Investigação local em 20-10-2026 (SC-10.7):** compilador e dependências de desktop estão presentes; a configuração debug e a build Linux passaram, assim como 165 testes C++ e os testes Rust. Os dados JA2 estão disponíveis em `/home/marcio/Games/Heroic/Jagged Alliance 2` (`data/`, minúsculas; VFS confirma resolução sem distinguir maiúsculas/minúsculas). O utilizador confirmou que a build local arrancou e correu corretamente com os dados originais. O Android usa Gradle 9.6.0, AGP 9.4.1 e KGP 2.4.20; `:app:assembleDebug` passou para as quatro ABIs com esta combinação e gerou `android/app/build/outputs/apk/debug/app-debug.apk` (77 MB). A matriz oficial do Kotlin ainda não lista AGP 9.4 como totalmente suportado por KGP 2.4.20. O JDK 17, SDK/NDK e alvos Rust necessários estavam disponíveis. Não foi possível iniciar o daemon ADB nesta sessão (`Operation not permitted`), portanto instalação, arranque do launcher e campanha em dispositivo continuam por validar. O guia e a evidência local estão em [ANDROID_BUILD_AND_DEVICE_TEST.md](ANDROID_BUILD_AND_DEVICE_TEST.md) e [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md). O DSL legado fica restrito ao módulo por `android.newDsl.optOut=:app`; o plugin Kotlin atual mantém opt-out temporário e produz aviso de descontinuação.
+
+**Planeamento em 22-10-2026 (SC-10.1):** [plano detalhado por ecrã](SC-10-ANDROID-SMALL-SCREENS-PLAN.md) criado após inventário estático de IDs de ecrã, modos do laptop, input SDL, layout e launcher Android. O utilizador definiu uma fase para cada ecrã/página, Pixel 8 (~6") na horizontal como alvo físico inicial e emuladores para outros tamanhos; a UI deverá escalar automaticamente. Nenhuma lacuna de toque ou zoom foi ainda reproduzida em dispositivo nesta etapa; a matriz física e a validação de campanha permanecem pendentes. O código atual declara `compileSdk 37` em `android/app/build.gradle`, mas o guia Android ainda refere 34; reconciliar antes da próxima build.
 
 **Aceitação:** a matriz SC-10.1 não tem comandos essenciais sem via tátil; pinça e pan não executam ações de jogo acidentalmente; zoom e reposição deixam seleção e hit testing alinhados com a imagem; os controlos têm alternativa visível aos gestos; a campanha de validação decorre sem teclado/rato; o mesmo save mantém as mesmas regras e resultados ao passar de móvel para desktop. **Riscos:** a UI original foi desenhada para rato e 640×480; zoom de todo o framebuffer pode tornar painéis inacessíveis, e gestos podem colidir com arrasto de itens. Resolver por ecrã e com testes físicos, não apenas em emulador.
 
