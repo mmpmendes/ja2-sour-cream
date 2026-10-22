@@ -20,6 +20,10 @@ Este repositório é um fork de JA2 Stracciatella. O nome pretendido para o fork
 - Build e verificações existentes: `CMakeLists.txt`, `dependencies/lib-stracciatella/CMakeLists.txt`, `.ci/ci-build.sh`.
 - Build e testes num dispositivo Android: `docs/ANDROID_BUILD_AND_DEVICE_TEST.md`.
 
+## ADB e dispositivos Android
+
+Se o daemon ADB não conseguir iniciar dentro da sandbox (por exemplo, erro `Operation not permitted` ao abrir o socket local), executa os comandos ADB fora da sandbox. Não concluas que o dispositivo ou AVD está inacessível antes de tentar nesse contexto. Regista o dispositivo/AVD, Android/API, orientação, resolução e densidade usados na reprodução.
+
 ## Ao concluir uma tarefa
 
 Regista no resumo da alteração: `SC-xx`, cenário reproduzido ou requisito observado, ficheiros alterados, verificações executadas, resultado e riscos que ficaram. Se não houver dados originais do JA2 disponíveis para teste manual, diz explicitamente quais cenários ficaram por verificar. Atualiza o estado e a evidência no roadmap apenas depois de a alteração estar concluída.

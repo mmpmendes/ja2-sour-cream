@@ -10,7 +10,9 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:paddingBottom="88dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -47,10 +49,9 @@
 
                     <EditText
                         android:id="@+id/resolutionWidthEdit"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        android:ems="10"
+                        android:layout_weight="1"
                         android:inputType="number" />
 
                     <TextView
@@ -62,10 +63,9 @@
 
                     <EditText
                         android:id="@+id/resolutionHeightEdit"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        android:ems="10"
+                        android:layout_weight="1"
                         android:inputType="number" />
 
                     <Button
