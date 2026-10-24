@@ -147,7 +147,7 @@ Os nomes abaixo correspondem a `LaptopMode` em `Laptop.h`; modos transitórios o
 
 | Fase | Página/estado único | Trabalho particular e verificação de saída |
 | --- | --- | --- |
-| F008 | Moldura `LAPTOP_SCREEN` | Navegação, favoritos, voltar/fechar, área segura e legibilidade (`Laptop.cc`). |
+| F008 | Moldura `LAPTOP_SCREEN` | Navegação, favoritos, voltar/fechar, área segura e legibilidade (`Laptop.cc`). **Em validação, 24-10-2026:** retoma corrigida; matriz AVD executada anteriormente. Nesta verificação, ADB encontrou só `emulator-5554`, em 1080×2400@420 dpi no launcher; save (409.643 bytes) e presença de `Data/` com 178 ficheiros foram confirmados sem alteração. CUA mostrou `apps: []`, browsers sem tabs e não disponibilizou `cua.listWindows()`. `cmake --build _bin --target ja2 -j1` falhou dentro da sandbox (cache Cargo SQLite somente leitura) e fora dela (exit 101, metadados Cargo incompatíveis com `rustc 1.101.0-nightly`); não houve interação desktop nem nova repetição da matriz AVD. Rato/teclado e ergonomia física continuam pendentes. [Inventário, reprodução e resultados](SC-10-F008-LAPTOP-FRAME.md). |
 | F009 | `LAPTOP_MODE_NONE` | Desktop interno: ícones e entrada nas apps, regressar sem bloqueio (`Laptop.cc`). |
 | F010 | `LAPTOP_MODE_FINANCES` | Folhear movimentos e ler valores (`Finances.cc`). |
 | F011 | `LAPTOP_MODE_PERSONNEL` | Selecionar perfis e navegar separadores (`Personnel.cc`). |
