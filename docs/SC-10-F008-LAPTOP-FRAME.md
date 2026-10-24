@@ -130,3 +130,26 @@ A inspeção confirmou que `EngineOptions_shouldStartInFullscreen(params.get())`
 A CUA reportou `apps: []`, browsers sem tabs e `cua.listWindows is not a function`; não havia janela desktop real selecionável nem entrada observável. Não iniciei o executável recém-compilado, pois isso abriria os dados originais JA2, proibidos nesta tarefa. Por isso apps laterais, favoritos/Cancel, minimizar/regressar, Shut Down/reentrada, Esc, Tab/Ctrl+Tab, atalhos pertinentes e duplicação de ações ficaram **não testados nesta execução**. A matriz dos três perfis paisagem permanece evidência anterior, não repetida. Não se reproduziu nova falha F008.
 
 ADB fora da sandbox enumerou apenas o AVD visível `emulator-5554`: Android 17/API 37, ABI `x86_64` (também anuncia `arm64-v8a`), 1080×2400@420 dpi, retrato, rotação automática ligada e `LauncherActivity` em primeiro plano. O dispositivo permaneceu ligado e inalterado. A listagem de metadados confirmou `/sdcard/Download/JA2/Data` presente e o save F006test com 409.643 bytes, timestamp 2026-10-22 21:39:48 UTC. Nenhum dos dois foi aberto, carregado, copiado ou alterado. Não havia dispositivo físico. Os cenários de legibilidade, precisão/ergonomia dos alvos, áreas seguras, retoma e rotação no Pixel/tablet físico continuam pendentes. F008 permanece incompleta, em validação; SC-10 permanece em investigação.
+
+## Testes F008 adiados para o fim das fases do laptop
+
+Executar esta lista depois de F009–F032, como regressão final da moldura antes de fechar o conjunto de fases do laptop. F008 continua incompleta/em validação até haver evidência destes cenários; os testes anteriores nos três perfis AVD paisagem continuam registados acima e não contam como execução desta lista.
+
+### Desktop com build atual e entrada CUA observável
+
+- Abrir uma janela real do jogo numa build atual e confirmar no CUA que a imagem muda após cada clique/tecla; não contar hover como clique.
+- Clicar em E-mail, Files, History, Personnel e Financial; confirmar que cada ação abre a app correspondente uma única vez.
+- Abrir Web e favoritos; testar A.I.M., Cancel, clique no fundo e Esc. Confirmar que Cancel/Esc fecham a sobreposição sem sair do laptop e sem disparar uma segunda navegação.
+- Testar minimizar pelo X e pelo ícone da barra; confirmar regresso à app anterior ou ao fundo quando não há app anterior.
+- Testar Shut Down e reentrada pelo mapa; confirmar exatamente uma saída e uma reentrada.
+- Testar os indicadores de correio/ficheiro novo quando presentes e regressar pelo X.
+- Com teclado, testar Esc com e sem favoritos abertos, Tab, Ctrl+Tab e os atalhos pertinentes observados na build; confirmar o destino visual e que cada comando só executa uma transição.
+
+### Dispositivo físico Android
+
+- No Pixel 8 horizontal (ou registar claramente o modelo físico disponível), medir alvos e legibilidade da barra lateral, favoritos/Cancel, X/minimizar, Shut Down, ícone do mapa e indicadores; confirmar que a moldura e os alvos permanecem dentro da área segura e sem corte.
+- Repetir por toque as apps laterais, favoritos/Cancel, minimizar/regressar, Shut Down/reentrada e indicadores; confirmar o resultado visível de cada toque e ausência de ação duplicada.
+- Com o laptop aberto, suspender/retomar por Home/Recentes e rodar o dispositivo; confirmar que a mesma app/estado continua visível e que o primeiro input após retoma produz apenas a ação pedida.
+- Registar Android/API, ABI, resolução, densidade, orientação, dimensões físicas dos alvos e resultados esperados/observados. Não declarar ergonomia de tablet físico sem o testar.
+
+No encerramento, anotar cenários não executados e motivo. Esta lista limita-se à moldura F008; não autoriza testar nem alterar a lógica das páginas internas F009–F032.

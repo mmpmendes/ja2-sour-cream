@@ -148,7 +148,7 @@ Os nomes abaixo correspondem a `LaptopMode` em `Laptop.h`; modos transitórios o
 | Fase | Página/estado único | Trabalho particular e verificação de saída |
 | --- | --- | --- |
 | F008 | Moldura `LAPTOP_SCREEN` | Navegação, favoritos, voltar/fechar, área segura e legibilidade (`Laptop.cc`). **Incompleta, em validação, 24-10-2026:** retoma corrigida; matriz AVD executada anteriormente. Nesta verificação, ADB encontrou só `emulator-5554`, em 1080×2400@420 dpi no launcher; save (409.643 bytes) e presença de `Data/` foram confirmados sem alteração. CUA mostrou `apps: []`, browsers sem tabs e não disponibilizou `cua.listWindows()`. `cmake --build _bin --target ja2 -j1` falhou primeiro com exit 101 (`E0514`, artefactos incompatíveis com `rustc 1.101.0-nightly`). **Nova execução no HEAD `97d6301d3373e3819c6d84de50b6c890ae69d6dd`:** `RUSTUP_TOOLCHAIN=1.85.1 cmake --build _bin --target ja2 -j1` reproduziu a falha C++ em `SGP.cc:420`; a linha comentada em `:337` era a leitura existente de `EngineOptions_shouldStartInFullscreen`. Restaurar apenas essa declaração preservou o comportamento de `--fullscreen`/`ja2.json` e a build passou. A CUA continuou sem apps/janela selecionável; não iniciei o executável para respeitar a proibição de abrir dados originais. Assim, comandos desktop não foram testados; a matriz AVD não foi repetida nem surgiu falha F008 nova. O AVD permaneceu ligado no launcher, save (409.643 bytes) e `Data/` só tiveram metadados confirmados; não havia dispositivo físico. Ergonomia física e comandos desktop permanecem pendentes. [Inventário, reprodução e resultados](SC-10-F008-LAPTOP-FRAME.md). |
-| F009 | `LAPTOP_MODE_NONE` | Desktop interno: ícones e entrada nas apps, regressar sem bloqueio (`Laptop.cc`). |
+| F009 | `LAPTOP_MODE_NONE` | Desktop interno: ícones e entrada nas apps, regressar sem bloqueio (`Laptop.cc`). **Validação tátil parcial, AVD 24-10-2026; F009 aberta:** depois de autorização para campanha nova não gravada, toque abriu E-mail, Web, Files, History, Personnel e Financial; cada destino foi observado e o X de cada app regressou uma vez ao desktop. O AVD visível era Android 17/API 37, `x86_64`, 1080×2400@420 dpi, retrato. Nenhuma falha de bloqueio foi observada. Mouse/teclado desktop, hardware físico, ergonomia, entrada a partir do mapa e testes dos indicadores permanecem pendentes; não executar a regressão F008 antecipada. [Relatório F009](SC-10-F009-LAPTOP-MODE-NONE.md). |
 | F010 | `LAPTOP_MODE_FINANCES` | Folhear movimentos e ler valores (`Finances.cc`). |
 | F011 | `LAPTOP_MODE_PERSONNEL` | Selecionar perfis e navegar separadores (`Personnel.cc`). |
 | F012 | `LAPTOP_MODE_HISTORY` | Folhear cronologia, datas e voltar (`History.cc`). |
@@ -213,6 +213,8 @@ Além das seis fases IMP representativas, **cada estado visual distinto** dos re
 | F066 | `IMP_SkillTraits` | Selecionar traços, ler estado e cancelar. |
 | F067 | `IMP_Compile_Character` | Espera/resultado e retorno, sem mudar geração. |
 | F068 | `IMP_Finish` | Confirmação final e saída para computador. |
+
+**Regressão F008 adiada para o fim das fases do laptop:** executar, depois de F009–F032, a lista desktop via CUA e a validação de toque/ergonomia física registadas em [SC-10-F008-LAPTOP-FRAME.md](SC-10-F008-LAPTOP-FRAME.md). F008 permanece incompleta/em validação até esses testes serem feitos; os perfis AVD já executados são evidência anterior e não substituem esta validação final.
 
 ### Jogo tático, combate e respetivas janelas
 
